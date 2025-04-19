@@ -21,26 +21,27 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>();
-
+  const [updateTrigger, setUpdateTrigger] = useState<number>(0);
   // Fetch file content on mount
-  useEffect(() => {
-    async function fetchContent() {
-      try {
-        const response = await fetch("/api/getFile");
-        const data: FileContent | ErrorResponse = await response.json();
-        if (response.ok && "content" in data) {
-          setContent(data.content);
-        } else {
-          setError("message" in data ? data.message : "Unknown error");
-        }
-      } catch (err) {
-        setError("Failed to fetch content");
-      } finally {
-        setIsLoading(false);
+  const fetchContent = async () => {
+    try {
+      const response = await fetch("/api/getFile");
+      const data: FileContent | ErrorResponse = await response.json();
+      if (response.ok && "content" in data) {
+        setContent(data.content);
+      } else {
+        setError("message" in data ? data.message : "Unknown error");
       }
+    } catch (err) {
+      setError("Failed to fetch content");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchContent();
-  }, []);
+  }, [updateTrigger]);
 
   // Handle content update
   const handleUpdate = async () => {
@@ -53,6 +54,7 @@ export default function Home() {
         });
         const data: ErrorResponse = await response.json();
         setToast({ message: data.message, type: "success" });
+        setUpdateTrigger((prev) => prev + 1);
         if (!response.ok) {
           //  setError(data.message);
           setToast({ message: data.message, type: "error" });
