@@ -8,6 +8,14 @@ type RequestBody = {
 
 export async function POST(request: Request) {
   try {
+    const filePath = process.env.FILE_PATH;
+    if (!filePath) {
+      return NextResponse.json(
+        { message: "File path not configured" },
+        { status: 500 }
+      );
+    }
+
     const body: RequestBody = await request.json();
     const { content } = body;
 
@@ -15,12 +23,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Invalid content" }, { status: 400 });
     }
 
-    const filePath = path.join(process.cwd(), "data", "textfile.txt");
-    await fs.appendFile(filePath, content + "\n", "utf8");
+    // Resolve the file path
+    const resolvedPath = path.resolve(filePath);
+    await fs.appendFile(resolvedPath, content + "\n", "utf8");
     return NextResponse.json({ message: "File updated successfully" });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
-      { message: "Error updating file", error: error.message },
+      { message: "Error updating file" },
       { status: 500 }
     );
   }
