@@ -1,13 +1,12 @@
 import "./globals.css";
+import Home from "./page";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout() {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Home />
+      </body>
     </html>
   );
 }
